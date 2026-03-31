@@ -1,0 +1,5 @@
+export PRIMARY="#333333"
+export SECONDARY="#666666"
+export ACCENT="#007acc"
+export BACKGROUND="#ffffff"
+export STATS_THEME="default"
