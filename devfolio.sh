@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # DevFolio - Developer Portfolio Generator
-# Version: 2.0.0 - Completely Rewritten
+# Version: 3.0 - PRO EDITION
 # Author: Ricky Parmar
 
 set -euo pipefail
@@ -19,26 +19,36 @@ NC='\033[0m'
 # Default values
 USERNAME=""
 THEME="cyberpunk"
+NAME=""
+BIO=""
+LOCATION=""
+WEBSITE=""
+TWITTER=""
+LINKEDIN=""
+INSTAGRAM=""
+GITHUB=""
 INCLUDE_STATS=true
 INCLUDE_BADGES=true
 INCLUDE_TROPHIES=true
 INCLUDE_STREAK=true
-STATS_THEME="default"
+INCLUDE_REPOS=true
 OUTPUT_DIR="."
 
-# Theme configurations
+# Theme configs with more options
 declare -A THEME_CONFIGS
-THEME_CONFIGS[cyberpunk]="primary=#ff00ff,secondary=#00ffff,accent=#ffff00,bg=#0d0d0d,stats=radical"
-THEME_CONFIGS[minimal]="primary=#333333,secondary=#666666,accent=#007acc,bg=#ffffff,stats=default"
-THEME_CONFIGS[ocean]="primary=#0077b6,secondary=#00b4d8,accent=#90e0ef,bg=#03045e,stats=ocean"
-THEME_CONFIGS[fire]="primary=#ff4500,secondary=#ff6b35,accent=#ffa500,bg=#1a0a00,stats=fire"
-THEME_CONFIGS[forest]="primary=#228b22,secondary=#90ee90,accent=#006400,bg=#0d1f0d,stats=green_gruvbox"
-THEME_CONFIGS[dark]="primary=#58a6ff,secondary=#8b949e,accent=#7ee787,bg=#0d1117,stats=dark"
+THEME_CONFIGS[cyberpunk]="primary=#ff00ff,secondary=#00ffff,accent=#ffff00,bg=#0d0d0d,stats=radical,card_bg=#161b22"
+THEME_CONFIGS[minimal]="primary=#333333,secondary=#666666,accent=#007acc,bg=#ffffff,stats=default,card_bg=#f6f8fa"
+THEME_CONFIGS[ocean]="primary=#0077b6,secondary=#00b4d8,accent=#90e0ef,bg=#03045e,stats=ocean,card_bg=#0a2540"
+THEME_CONFIGS[fire]="primary=#ff4500,secondary=#ff6b35,accent=#ffa500,bg=#1a0a00,stats=fire,card_bg=#2d1810"
+THEME_CONFIGS[forest]="primary=#228b22,secondary=#90ee90,accent=#006400,bg=#0d1f0d,stats=green_gruvbox,card_bg=#1a2f1a"
+THEME_CONFIGS[dark]="primary=#58a6ff,secondary=#8b949e,accent=#7ee787,bg=#0d1117,stats=dark,card_bg=#161b22"
 
 show_banner() {
 	echo -e "${CYAN}"
 	cat <<'BANNER'
-╔═══════════════════════════════════════════════════════════════════╗
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                      ⚡ DevFolio PRO ⚡                     ║
+║              Version 3.0 - Enhanced Edition                   ║
 ║                                                                   ║
 ║   ███████╗ ██████╗ ██████╗ ██╗    ██╗    ██████╗  █████╗ ██████╗  ║
 ║   ██╔════╝██╔═══██╗██╔══██╗██║    ██║   ██╔════╝ ██╔══██╗██╔══██╗ ║
@@ -46,10 +56,7 @@ show_banner() {
 ║   ██╔══╝  ██║   ██║██╔══██╗██║███╗██║   ██║   ██║██╔══██║██╔══██╗ ║
 ║   ███████╗╚██████╔╝██║  ██║╚███╔███╔╝   ╚██████╔╝██║  ██║██║  ██║ ║
 ║   ╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ╚══╝╚══╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ║
-║                                                                   ║
-║          ⚡ Portfolio Generator for Developers ⚡                 ║
-║                     Version 2.0 - Fixed & Enhanced                ║
-╚═══════════════════════════════════════════════════════════════════╝
+╚═══════════════════════════════════════════════════════════════════════════╝
 BANNER
 	echo
 }
@@ -58,341 +65,320 @@ show_help() {
 	echo -e "${YELLOW}Usage: $0 [OPTIONS]${NC}"
 	echo
 	echo "Options:"
-	echo "  -u, --username    Your GitHub username (required)"
-	echo "  -t, --theme       Theme: cyberpunk|minimal|ocean|fire|forest|dark"
-	echo "  -o, --output     Output directory (default: current)"
-	echo "  --no-stats       Skip stats section"
-	echo "  --no-badges      Skip badges section"
-	echo "  --no-trophies    Skip trophies section"
-	echo "  --no-streak      Skip streak section"
-	echo "  -h, --help       Show this help"
-	echo
-	echo "Examples:"
-	echo "  $0 --username john --theme cyberpunk"
-	echo "  $0 -u john -t dark -o ../my-profile"
+	echo "  -u, --username   GitHub username (required)"
+	echo "  -n, --name       Display name"
+	echo "  -b, --bio        Short bio"
+	echo "  -l, --location  Your location"
+	echo "  -w, --website   Your website"
+	echo "  -t, --twitter   Twitter handle"
+	echo "  --theme         Theme: cyberpunk|minimal|ocean|fire|forest|dark"
+	echo "  -o, --output   Output directory"
+	echo "  --no-stats      Skip stats"
+	echo "  --no-badges    Skip badges"
+	echo "  --no-trophies  Skip trophies"
+	echo "  --no-streak    Skip streak"
+	echo "  --no-repos     Skip recent repos"
 }
 
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-	case $1 in
-	-u | --username)
-		USERNAME="$2"
-		shift 2
-		;;
-	-t | --theme)
-		THEME="$2"
-		shift 2
-		;;
-	-o | --output)
-		OUTPUT_DIR="$2"
-		shift 2
-		;;
-	--no-stats)
-		INCLUDE_STATS=false
-		shift
-		;;
-	--no-badges)
-		INCLUDE_BADGES=false
-		shift
-		;;
-	--no-trophies)
-		INCLUDE_TROPHIES=false
-		shift
-		;;
-	--no-streak)
-		INCLUDE_STREAK=false
-		shift
-		;;
-	-h | --help)
-		show_help
-		exit 0
-		;;
-	*)
-		echo -e "${RED}Unknown option: $1${NC}"
-		show_help
-		exit 1
-		;;
-	esac
-done
+parse_args() {
+	while [[ $# -gt 0 ]]; do
+		case $1 in
+		-u | --username) USERNAME="$2" ; shift 2 ;;
+		-n | --name) NAME="$2" ; shift 2 ;;
+		-b | --bio) BIO="$2" ; shift 2 ;;
+		-l | --location) LOCATION="$2" ; shift 2 ;;
+		-w | --website) WEBSITE="$2" ; shift 2 ;;
+		-t | --twitter) TWITTER="$2" ; shift 2 ;;
+		--linkedin) LINKEDIN="$2" ; shift 2 ;;
+		--instagram) INSTAGRAM="$2" ; shift 2 ;;
+		-t | --theme) THEME="$2" ; shift 2 ;;
+		-o | --output) OUTPUT_DIR="$2" ; shift 2 ;;
+		--no-stats) INCLUDE_STATS=false ; shift ;;
+		--no-badges) INCLUDE_BADGES=false ; shift ;;
+		--no-trophies) INCLUDE_TROPHIES=false ; shift ;;
+		--no-streak) INCLUDE_STREAK=false ; shift ;;
+		--no-repos) INCLUDE_REPOS=false ; shift ;;
+		-h | --help) show_help ; exit 0 ;;
+		*) echo -e "${RED}Unknown: $1" ; show_help ; exit 1 ;;
+		esac
+	done
+}
 
-# Validate theme
-if ! [[ -v THEME_CONFIGS[$THEME] ]]; then
-	echo -e "${RED}Invalid theme: $THEME${NC}"
-	echo "Valid themes: cyberpunk, minimal, ocean, fire, forest, dark"
-	exit 1
-fi
-
-# Interactive mode if no username
-if [ -z "$USERNAME" ]; then
+interactive_mode() {
 	show_banner
-	echo -e "${YELLOW}Let's create your portfolio!${NC}"
+	echo -e "${YELLOW}Let's build your PRO profile!${NC}"
 	echo
-	read -p "Enter your GitHub username: " USERNAME
-	
-	if [ -z "$USERNAME" ]; then
-		echo -e "${RED}Username is required!${NC}"
-		exit 1
-	fi
-	
+	read -p "GitHub username: " USERNAME
+	read -p "Display name (ENTER for $USERNAME): " NAME
+	[ -z "$NAME" ] && NAME="$USERNAME"
+	read -p "Short bio: " BIO
+	read -p "Location: " LOCATION
+	read -p "Website (optional): " WEBSITE
+	read -p "Twitter handle (optional): " TWITTER
+	read -p "Instagram handle (optional): " INSTAGRAM
 	echo
-	echo "Available themes:"
-	echo "  1. cyberpunk (Neon glow)"
-	echo "  2. minimal (Clean & simple)"
-	echo "  3. ocean (Blue waves)"
-	echo "  4. fire (Flaming hot)"
-	echo "  5. forest (Nature)"
-	echo "  6. dark (Classic)"
-	echo
-	read -p "Choose theme (1-6) or type name: " THEME_CHOICE
+	echo "Choose theme:"
+	echo "  1. cyberpunk  2. minimal  3. ocean  4. fire  5. forest  6. dark"
+	read -p "Theme [1]: " THEME_CHOICE
 	case $THEME_CHOICE in
-	1) THEME="cyberpunk" ;;
 	2) THEME="minimal" ;;
 	3) THEME="ocean" ;;
 	4) THEME="fire" ;;
 	5) THEME="forest" ;;
 	6) THEME="dark" ;;
+	*) THEME="cyberpunk" ;;
 	esac
-fi
+}
 
-# Parse theme config
-THEME_CONFIG="${THEME_CONFIGS[$THEME]}"
-IFS=',' read -ra CONFIG <<< "$THEME_CONFIG"
-for config in "${CONFIG[@]}"; do
-	IFS='=' read -r key value <<< "$config"
-	case $key in
-		primary) PRIMARY="$value" ;;
-		secondary) SECONDARY="$value" ;;
-		accent) ACCENT="$value" ;;
-		bg) BACKGROUND="$value" ;;
-		stats) STATS_THEME="$value" ;;
-	esac
-done
+get_config() {
+	local config="${THEME_CONFIGS[$THEME]}"
+	IFS=',' read -ra C <<< "$config"
+	for c in "${C[@]}"; do
+		IFS='=' read -r k v <<< "$c"
+		case $k in primary) PRIMARY="$v" ;; secondary) SECONDARY="$v" ;; accent) ACCENT="$v" ;; bg) BACKGROUND="$v" ;; stats) STATS_THEME="$v" ;; card_bg) CARD_BG="$v" ;; esac
+	done
+}
 
-OUTPUT_DIR="${OUTPUT_DIR%/}"
-echo -e "${GREEN}[*] Generating portfolio for ${CYAN}$USERNAME${GREEN} with ${CYAN}$THEME${GREEN} theme...${NC}"
+fetch_repos() {
+	REPOS=$(curl -s "https://api.github.com/users/$USERNAME/repos?sort=updated&per_page=6" 2>/dev/null | jq -r '.[] | "- [\(.name)](\(.html_url)): \(.description // "No description")"' 2>/dev/null || echo "")
+}
 
-# Generate README
 generate_readme() {
-	local readme_file="$OUTPUT_DIR/README.md"
+	local readme="$OUTPUT_DIR/README.md"
 	
-	cat > "$readme_file" <<EOF
-# 👋 Hi, I'm $USERNAME!
+	[ -z "$NAME" ] && NAME="$USERNAME"
+	[ -z "$BIO" ] && BIO="Building cool stuff 🤖"
+	
+	# Build social links
+	local socials=""
+	[ -n "$TWITTER" ] && socials+="[![Twitter](https://img.shields.io/badge/-@$TWITTER-1DA1F2?style=flat&logo=twitter&logoColor=white)](https://twitter.com/$TWITTER) "
+	[ -n "$LINKEDIN" ] && socials+="[![LinkedIn](https://img.shields.io/badge/-Connect-0077B5?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/$LINKEDIN) "
+	[ -n "$INSTAGRAM" ] && socials+="[![Instagram](https://img.shields.io/badge/-@$INSTAGRAM-E4405F?style=flat&logo=instagram&logoColor=white)](https://instagram.com/$INSTAGRAM) "
+	[ -n "$WEBSITE" ] && socials+="[![Website](https://img.shields.io/badge/-Website-$PRIMARY?style=flat&logo=firefox&logoColor=white)]($WEBSITE) "
+	socials+="[![GitHub](https://img.shields.io/badge/-Follow-$PRIMARY?style=flat&logo=github&logoColor=white)](https://github.com/$USERNAME)"
+	
+	cat > "$readme" <<HEADER
+<div align="center">
 
-<p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&animation=twinkling&text=$USERNAME" alt="header"/>
+# 👋 Hi, I'm **$NAME**!
+
+$([ -n "$BIO" ] && echo "*$BIO*")
+
+<p>
+
+![header](https://capsule-render.vercel.app/api?type=waving&color=gradient&height=180&animation=twinkling&text=$NAME&fontSize=60)
+
 </p>
 
-<p align="center">
-  <img src="https://komarev.com/ghpvc/?username=$USERNAME&label=Profile%20Views&color=$PRIMARY&style=flat" alt="views"/>
-  <img src="https://badges.to,badge/github_stars-$USERNAME%2F$USERNAME-blue" alt="stars"/>
-  <img src="https://badges.to,badge/github_forks-$USERNAME%2F$USERNAME-blue" alt="forks"/>
-</p>
+$([ -n "$LOCATION" ] && echo "<p align=\"center\">📍 $LOCATION</p>")
+
+$socials
 
 ---
 
-## 📊 Stats
+</div>
+
+HEADER
+
+	# Stats section
+	if [ "$INCLUDE_STATS" = true ]; then
+		cat >> "$readme" <<STATS
+
+## 📊 GitHub Stats
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=$USERNAME&theme=$STATS_THEME&hide_border=true&stats%5Bextra%5D%5Bshow%5D%5Bcustom%5D%5Bline%5D%5Bcolor%5D=$PRIMARY" alt="stats"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=$USERNAME&theme=$STATS_THEME&hide_border=true&layout=compact" alt="languages"/>
+
+<img src="https://github-readme-stats.vercel.app/api?username=$USERNAME&theme=$STATS_THEME&hide_border=true&title_color=$PRIMARY&text_color=$SECONDARY&icon_color=$ACCENT&bg_color=$CARD_BG" height="165"/>
+
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=$USERNAME&theme=$STATS_THEME&hide_border=true&title_color=$PRIMARY&text_color=$SECONDARY&icon_color=$ACCENT&bg_color=$CARD_BG&layout=pie" height="165"/>
+
 </p>
+STATS
+	fi
 
-$([ "$INCLUDE_STREAK" = true ] && cat <<STREAK
-
----
+	# Streak section
+	if [ "$INCLUDE_STREAK" = true ]; then
+		cat >> "$readme" <<STREAK
 
 ## 🔥 Streak
 
 <p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=$USERNAME&theme=$STATS_THEME" alt="streak"/>
+
+<img src="https://github-readme-streak-stats.herokuapp.com/?user=$USERNAME&theme=$STATS_THEME&hide_border=true&fire=$PRIMARY&ring=$SECONDARY&stroke=$ACCENT" alt="streak"/>
+
 </p>
 STREAK
-)
+	fi
 
-$([ "$INCLUDE_TROPHIES" = true ] && cat <<TROPHIES
-
----
+	# Trophies section
+	if [ "$INCLUDE_TROPHIES" = true ]; then
+		cat >> "$readme" <<TROPHY
 
 ## 🏆 Trophies
 
 <p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=$USERNAME&theme=$THEME" alt="trophies"/>
+
+<img src="https://github-profile-trophy.vercel.app/?username=$USERNAME&theme=$THEME&no-frame=true&column=3&margin-w=10&margin-h=10" alt="trophy"/>
+
 </p>
-TROPHIES
-)
+TROPHY
+	fi
 
----
+	# Recent repos section
+	if [ "$INCLUDE_REPOS" = true ]; then
+		cat >> "$readme" <<REPOS
 
-## 🛠️ Tech Stack
+## 🛠️ Recent Projects
 
-$([ "$INCLUDE_BADGES" = true ] && cat <<BADGES
 <p align="center">
-  <img src="https://techstack-icons.vercel.app/?username=$USERNAME" alt="techstack"/>
+
+$REPOS
+
+</p>
+REPOS
+	fi
+
+	# Tech stack / badges
+	if [ "$INCLUDE_BADGES" = true ]; then
+		cat >> "$readme" <<BADGES
+
+## 🧰 Tech Stack
+
+<p align="center">
+
+<!-- Dynamic tech badges would go here -->
+<img src="https://skillicons.dev/icons?tags=$([ -n "$TECH_STACK" ] && echo "$TECH_STACK" || echo "bash,arduino,esp32,python,embedded")" alt="techstack"/>
+
 </p>
 BADGES
-)
+	fi
 
----
-
-## 📫 Connect
-
-<p align="center">
-  <a href="https://github.com/$USERNAME"><img src="https://img.shields.io/github/followers/$USERNAME?label=Follow&style=social" alt="followers"/></a>
-  <a href="https://github.com/$USERNAME/$USERNAME"><img src="https://img.shields.io/github/stars/$USERNAME?label=STAR+ME&style=social" alt="star"/></a>
-</p>
+	# Footer
+	cat >> "$readme" <<FOOTER
 
 ---
 
 <div align="center">
-  <img src="https://komarev.com/ghpvc/?username=$USERNAME&label=Profile%20Views&color=$PRIMARY&style=flat" alt="views-bottom"/>
-  
-  Made with ❤️ using DevFolio
-</div>
-EOF
 
-	echo -e "${GREEN}[✓] README.md generated${NC}"
+### 📈 Activity Graph
+
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=$USERNAME&theme=$THEME&hide_border=true&color=$PRIMARY" alt="activity"/>
+
+---
+
+<img src="https://komarev.com/ghpvc/?username=$USERNAME&label=Profile+Views&color=$PRIMARY&style=flat" alt="views"/>
+
+*Last updated: $(date '+%Y-%m-%d')*
+
+**Made with ❤️ using [DevFolio](https://github.com/rickyparmar-bot/devfolio)**
+
+</div>
+FOOTER
+
+	echo -e "${GREEN}[✓] PRO README generated${NC}"
 }
 
-# Create GitHub Actions workflow (FIXED!)
 create_workflow() {
-	local workflow_dir="$OUTPUT_DIR/.github/workflows"
-	mkdir -p "$workflow_dir"
-	
-	cat > "$workflow_dir/update.yml" <<EOF
+	mkdir -p "$OUTPUT_DIR/.github/workflows"
+	cat > "$OUTPUT_DIR/.github/workflows/update.yml" <<EOF
 name: Update Profile
 
 on:
-  # Run every 6 hours to avoid rate limits
   schedule:
     - cron: '0 */6 * * *'
-  # Allow manual trigger
   workflow_dispatch:
-  # Run on push to main
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Update Readme
-        env:
-          GH_TOKEN: \${{ secrets.GH_TOKEN }}
-          USERNAME: \${{ github.repository.owner }}
+      - uses: actions/checkout@v4
+      - name: Update with DevFolio
         run: |
-          # Fetch fresh stats
-          echo "Updating profile for \$USERNAME..."
-          
-      - name: Commit and Push
+          chmod +x devfolio.sh
+          ./devfolio.sh --username \${{ github.repository.owner }} --theme dark --output .
+      - name: Commit
         if: github.event_name != 'pull_request'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
           git add -A
-          git commit -m "Update portfolio stats" || exit 0
+          git commit -m "Update profile" || exit 0
           git push https://x-access-token:\${{ secrets.GH_TOKEN }}@github.com/\${{ github.repository }} --force
 EOF
-
-	echo -e "${GREEN}[✓] GitHub Actions workflow created${NC}"
+	echo -e "${GREEN}[✓] Workflow created${NC}"
 }
 
-# Create utility scripts (REAL FUNCTIONAL ONES)
-create_utils() {
-	local utils_dir="$OUTPUT_DIR/utils"
-	mkdir -p "$utils_dir"
-	
-	# Stats fetcher
-	cat > "$utils_dir/stats.sh" <<'STATS'
+create_install_script() {
+	cat > "$OUTPUT_DIR/install.sh" <<'INSTALL'
 #!/bin/bash
-# Fetch GitHub stats using official API
-# Usage: ./stats.sh <username>
+# DevFolio Quick Install
+# Run: chmod +x install.sh && ./install.sh
 
-USERNAME="${1:-}"
-GITHUB_API="https://api.github.com/users/$USERNAME"
+echo "🔧 Setting up DevFolio..."
 
-if [ -z "$USERNAME" ]; then
-    echo "Usage: $0 <username>"
-    exit 1
-fi
+# Check dependencies
+command -v jq >/dev/null 2>&1 || { echo "Installing jq..."; apt update && apt install -y jq; }
 
-# Fetch user data
-DATA=$(curl -s "$GITHUB_API")
-echo "$DATA" | jq -r '.'
-STATS
-	chmod +x "$utils_dir/stats.sh"
-	
-	# Streak fetcher
-	cat > "$utils_dir/streak.sh" <<'STREAK'
-#!/bin/bash
-# Fetch contribution streak
-# Usage: ./streak.sh <username>
+# Generate profile
+read -p "GitHub username: " USERNAME
+read -p "Theme [cyberpunk]: " THEME
+THEME=${THEME:-cyberpunk}
 
-USERNAME="${1:-}"
-CONTRIBUTIONS_API="https://github-contributions-api.vercel.app/$USERNAME"
+chmod +x devfolio.sh
+./devfolio.sh --username "$USERNAME" --theme "$THEME"
 
-if [ -z "$USERNAME" ]; then
-    echo "Usage: $0 <username>"
-    exit 1
-fi
-
-curl -s "$CONTRIBUTIONS_API" | jq '.'
-STREAK
-	chmod +x "$utils_dir/streak.sh"
-	
-	# Badges fetcher
-	cat > "$utils_dir/badges.sh" <<'BADGES'
-#!/bin/bash
-# Generate tech badges
-# Usage: ./badges.sh <language>
-
-for lang in "$@"; do
-    echo "https://img.shields.io/badge/$lang-?-style?logo=$lang"
-done
-BADGES
-	chmod +x "$utils_dir/badges.sh"
-	
-	echo -e "${GREEN}[✓] Utility scripts created${NC}"
+echo "✅ Done! Check README.md"
+INSTALL
+	chmod +x "$OUTPUT_DIR/install.sh"
 }
 
-# Create config file
-create_config() {
+save_config() {
 	cat > "$OUTPUT_DIR/.devfolio" <<EOF
-# DevFolio Configuration
-USERNAME="$USERNAME"
-THEME="$THEME"
-STATS_THEME="$STATS_THEME"
-INCLUDE_STATS=$INCLUDE_STATS
-INCLUDE_BADGES=$INCLUDE_BADGES
-INCLUDE_TROPHIES=$INCLUDE_TROPHIES
-INCLUDE_STREAK=$INCLUDE_STREAK
+USERNAME=$USERNAME
+NAME=$NAME
+BIO=$BIO
+LOCATION=$LOCATION
+WEBSITE=$WEBSITE
+TWITTER=$TWITTER
+LINKEDIN=$LINKEDIN
+INSTAGRAM=$INSTAGRAM
+THEME=$THEME
 EOF
-	echo -e "${GREEN}[✓] Config saved${NC}"
 }
 
-# Main execution
-show_banner
-generate_readme
-create_workflow
-create_utils
-create_config
+main() {
+	parse_args "$@"
+	
+	if [ -z "$USERNAME" ]; then
+		interactive_mode
+	fi
+	
+	if [[ ! -v THEME_CONFIGS[$THEME] ]]; then
+		echo -e "${RED}Invalid theme: $THEME${NC}"
+		exit 1
+	fi
+	
+	OUTPUT_DIR="${OUTPUT_DIR%/}"
+	mkdir -p "$OUTPUT_DIR"
+	
+	get_config
+	fetch_repos
+	
+	show_banner
+	echo -e "${GREEN}[*] Generating PRO profile for $USERNAME...${NC}"
+	
+	generate_readme
+	create_workflow
+	create_install_script
+	save_config
+	
+	echo
+	echo -e "${GREEN}╔════════════════════════════════════════╗"
+	echo -e "║   🎉 PROFILE GENERATED! 🎉          ║"
+	echo -e "╚════════════════════════════════════╝${NC}"
+}
 
-echo
-echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════╗"
-echo -e "║              🎉 PORTFOLIO GENERATED! 🎉                     ║"
-echo -e "╚═══════════════════════════════════════════════════════════════╝${NC}"
-echo
-echo -e "Files created in ${CYAN}$OUTPUT_DIR/:${NC}"
-echo "  📄 README.md"
-echo "  📁 .github/workflows/update.yml"
-echo "  📁 utils/"
-echo "  ⚙️  .devfolio config"
-echo
-echo -e "${YELLOW}📋 Next steps:${NC}"
-echo "  1. Review README.md"
-echo "  2. For auto-update: Add GH_TOKEN secret in repo settings"
-echo "  3. Push to your GitHub profile repo"
-echo "  4. That's a special repo matching your username!"
+main "$@"
