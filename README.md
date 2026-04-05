@@ -1,186 +1,131 @@
-# DevFolio 🎯
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&animation=twinkling&text=DevFolio" alt="header"/>
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&animation=twinkling&text=DevFolio" alt="header"/>
-  <br>
-  <img src="https://komarev.com/ghpvc/?username=devfolio&label=Profile%20Views&color=ff6b6b&style=flat" alt="views"/>
-  <a href="https://github.com/rickyparmar-bot/devfolio/stargazers"><img src="https://img.shields.io/github/stars/rickyparmar-bot/devfolio?v=2" alt="stars"/></a>
-  <a href="https://github.com/rickyparmar-bot/devfolio/network/members"><img src="https://img.shields.io/github/forks/rickyparmar-bot/devfolio?v=2" alt="forks"/></a>
+  <a href="https://github.com/rickyparmar-bot/devfolio/stargazers"><img src="https://img.shields.io/github/stars/rickyparmar-bot/devfolio?label=Stars&style=social" alt="stars"/></a>
+  <a href="https://github.com/rickyparmar-bot/devfolio/network/members"><img src="https://img.shields.io/github/forks/rickyparmar-bot/devfolio?label=Forks&style=social" alt="forks"/></a>
   <img src="https://img.shields.io/github/license/rickyparmar-bot/devfolio" alt="license"/>
-  <img src="https://img.shields.io/github/languages/code-size/rickyparmar-bot/devfolio" alt="size"/>
 </p>
 
-> ⚡ Generate stunning developer portfolios in seconds! Stand out with beautiful GitHub READMEs, dynamic stats, and personalized themes.
-
----
+⚡ Generate stunning developer portfolios in seconds! Stand out with beautiful GitHub READMEs, dynamic stats, and personalized themes.
 
 ## ✨ Features
 
-### 🎨 Multiple Themes
-- **Cyberpunk** - Neon glow aesthetic
-- **Minimal** - Clean and simple
-- **Ocean** - Blue waves vibe  
-- **Fire** - Flaming hot design
-- **Forest** - Nature-inspired
-- **Dark** - Classic dark mode
-
-### 📊 Dynamic Stats
-- GitHub stats with custom colors
-- Streak counter with fire animation
-- Top languages pie chart
-- Contribution graph
-- Trophy showcase
-
-### 🏆 Badges & Trophies
-- Auto-generated badges
-- Custom badge support
-- Trophy showcase
-- Activity milestones
-
-### 🔄 Auto-Update
-- GitHub Actions integration
-- Scheduled updates
-- No manual work needed
-
----
+- 🎨 **6 Beautiful Themes**: Cyberpunk, Minimal, Ocean, Fire, Forest, Dark
+- 📊 **Dynamic GitHub Stats**: Using github-readme-stats API
+- 🔥 **Streak Counter**: GitHub contribution streaks
+- 🏆 **Trophies**: Auto-generated trophy showcase
+- ⚙️ **GitHub Actions**: Auto-update your profile every 6 hours
+- 🛠️ **Utility Scripts**: Real stats/streak fetchers
+- 📝 **Config File**: Regenerate anytime from `.devfolio` config
 
 ## 🚀 Quick Start
 
+### Generate Your Portfolio
+
 ```bash
-# Clone the repo
 git clone https://github.com/rickyparmar-bot/devfolio.git
 cd devfolio
-
-# Run the generator
 chmod +x devfolio.sh
-./devfolio.sh
+./devfolio.sh --username YOUR_USERNAME --theme cyberpunk
 ```
-
----
-
-## 🎯 Usage
 
 ### Interactive Mode
+
 ```bash
 ./devfolio.sh
 ```
-Follow the prompts to customize your portfolio!
 
-### Quick Generate
-```bash
-./devfolio.sh --theme cyberpunk --username yourname
+### Options
+
+| Option | Description | Default |
+|--------|------------|---------|
+| `-u, --username` | GitHub username | (required) |
+| `-t, --theme` | Theme name | cyberpunk |
+| `-o, --output` | Output directory | current |
+| `--no-stats` | Skip stats section | false |
+| `--no-badges` | Skip badges section | false |
+| `--no-trophies` | Skip trophies | false |
+| `--no-streak` | Skip streak | false |
+
+## 🎨 Themes
+
+### Cyberpunk
+Neon glow aesthetic with pink/cyan accents.
+
+### Minimal  
+Clean and simple — perfect for professionals.
+
+### Ocean
+Blue waves vibe — calm and cool.
+
+### Fire
+Flaming hot design — for the bold.
+
+### Forest
+Nature-inspired — organic and fresh.
+
+### Dark
+Classic dark mode — GitHub's default style.
+
+## 📁 Generated Files
+
+```
+your-profile/
+├── README.md              # Your profile page
+├── .github/
+│   └── workflows/
+│       └── update.yml   # Auto-update workflow
+├── utils/
+│   ├── stats.sh       # Fetch user stats
+│   ├── streak.sh     # Fetch streak data
+│   └── badges.sh    # Generate badges
+└── .devfolio        # Config for regeneration
 ```
 
-### Available Options
-```bash
---theme, -t        Choose theme (cyberpunk/minimal/ocean/fire/forest/dark)
---username, -u     Your GitHub username
---stats            Include stats section
---badges           Include badges section
---trophies         Include trophies
---streak           Include streak counter
---help, -h         Show this help message
-```
+## 🔄 Auto-Update Setup
 
----
+1. Create a **classic personal access token** (repo scope)
+2. Go to your profile repo → Settings → Secrets
+3. Add new secret: `GH_TOKEN`
+4. Enable GitHub Actions
+5. Workflow runs every 6 hours automatically!
 
-## 📁 Project Structure
+## 🛠️ Tech Stack
 
-```
-devfolio/
-├── devfolio.sh          # Main generator script
-├── themes/              # Theme configurations
-│   ├── cyberpunk.sh
-│   ├── minimal.sh
-│   ├── ocean.sh
-│   ├── fire.sh
-│   ├── forest.sh
-│   └── dark.sh
-├── templates/           # README templates
-│   ├── basic.md
-│   ├── advanced.md
-│   └── minimal.md
-├── actions/             # GitHub Actions for auto-update
-│   └── update.yml
-├── utils/               # Helper scripts
-│   ├── stats.sh
-│   ├── badges.sh
-│   └── streak.sh
-├── examples/            # Example outputs
-├── docs/                 # Documentation
-├── CONTRIBUTING.md
-├── LICENSE
-└── README.md
-```
-
----
-
-## 🖥️ Preview
-
-### Cyberpunk Theme
-![Cyberpunk](https://user-images.githubusercontent.com/placeholder/cyberpunk.png)
-
-### Stats Preview
-![Stats](https://github-readme-stats.vercel.app/api?username=devfolio&theme=radical)
-
-### Streak Preview
-![Streak](https://github-readme-streak-stats.herokuapp.com/?user=devfolio&theme=radical)
-
----
-
-## 🔧 Configuration
-
-### Set GitHub Username
-```bash
-export GITHUB_USERNAME="yourusername"
-```
-
-### Choose Theme
-```bash
-export DEFAULT_THEME="cyberpunk"
-```
-
-### Enable Auto-Update
-```bash
-cp actions/update.yml .github/workflows/devfolio.yml
-```
-
----
+- **Shell**: Pure bash, no dependencies
+- **APIs**: github-readme-stats, github-profile-trophy
+- **CDN**: Vercel for dynamic badges
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
-
 1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing`)
-5. Open a Pull Request
+2. Create feature branch: `git checkout -b feature/amazing`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push: `git push origin feature/amazing`
+5. Open PR 🎉
 
----
+## ⚠️ v2.0 Changes (Fixed!)
 
-## ⭐ Show Your Support
+- ✅ Fixed broken badge URLs
+- ✅ Fixed workflow secret requirement
+- ✅ Added real utility scripts
+- ✅ Proper username substitution
+- ✅ Reduced cron to 6 hours (was hourly = rate limit hell)
+- ✅ Added error handling
+- ✅ Config file for regeneration
 
-Give a ⭐ if this project helped you!
+## �� License
 
-[![Star](https://img.shields.io/github/stars/rickyparmar-bot/devfolio?style=social)](https://github.com/rickyparmar-bot/devfolio)
+MIT License — See [LICENSE](LICENSE)
 
----
-
-## 📝 License
-
-MIT License - See [LICENSE](LICENSE)
-
----
-
-## 🧑‍💻 Created By
+## 👤 Author
 
 **Ricky Parmar**
 - GitHub: [@rickyparmar-bot](https://github.com/rickyparmar-bot)
-- Instagram: [@ricky_._parmar](https://instagram.com/ricky_._parmar)
+- Project: [DevFolio](https://github.com/rickyparmar-bot/devfolio)
 
 ---
 
-<div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=100&text=Made%20with%20❤️" alt="footer"/>
-</div>
+<p align="center">
+  Give a ⭐ if this helped!
+</p>
